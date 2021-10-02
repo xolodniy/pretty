@@ -50,6 +50,14 @@ func getFieldValue(fieldName string, v reflect.Value, isPointer bool) string {
 		s = fmt.Sprintf("'%s'", v.String())
 	case v.Kind() == reflect.Int && (v.Int() != 0 || isPointer):
 		s = v.Int()
+	case v.Kind() == reflect.Int64 && (v.Int() != 0 || isPointer):
+		s = v.Int()
+	case v.Kind() == reflect.Uint && (v.Uint() != 0 || isPointer):
+		s = v.Uint()
+	case v.Kind() == reflect.Bool && (v.Bool() != false || isPointer):
+		s = v.Bool()
+	case v.Kind() == reflect.Float64 && (v.Float() != 0 || isPointer):
+		s = v.Float()
 	case v.Kind() == reflect.Struct:
 		s = printChildStruct(v)
 	default:
