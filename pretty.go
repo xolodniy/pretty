@@ -6,7 +6,12 @@ import (
 	"strings"
 )
 
-func Print(input interface{}) string {
+func Print(input interface{}) (output string) {
+	defer func() {
+		if r := recover(); r != nil {
+			output = fmt.Sprintf("panic recovered (%v): %s", r, output)
+		}
+	}()
 	v := reflect.ValueOf(input)
 
 	switch v.Kind() {
