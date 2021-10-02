@@ -21,9 +21,9 @@ func Print(input interface{}) (output string) {
 		typeOfS := v.Type()
 		var fields string
 		for i := 0; i < v.NumField(); i++ {
-			f := getFieldValue(typeOfS.Field(i).Name, v.Field(i))
+			f := getFieldValue(typeOfS.Field(i).Name, v.Field(i), false)
 			if f != "" {
-				fields += f + ", "
+				fields += fmt.Sprintf("%s: %v, ", typeOfS.Field(i).Name, f)
 			}
 		}
 		fields = strings.TrimSuffix(fields, ", ")
@@ -36,15 +36,19 @@ func Print(input interface{}) (output string) {
 	}
 }
 
-func getFieldValue(fieldName string, v reflect.Value) string {
+func getFieldValue(fieldName string, v reflect.Value, isPointer bool) string {
 	var s interface{}
 	var invalid bool
 	switch {
 	case v.Kind() == reflect.Ptr:
-		return "*" + getFieldValue(fieldName, v.Elem())
-	case v.Kind() == reflect.String && v.String() != "":
-		s = v.String()
-	case v.Kind() == reflect.Int && v.Int() != 0:
+		if v.IsNil() {
+			return ""
+		} else {
+			return getFieldValue(fieldName, v.Elem(), true)
+		}
+	case v.Kind() == reflect.String && (v.String() != "" || isPointer):
+		s = fmt.Sprintf("'%s'", v.String())
+	case v.Kind() == reflect.Int && (v.Int() != 0 || isPointer):
 		s = v.Int()
 	case v.Kind() == reflect.Struct:
 		s = printChildStruct(v)
@@ -54,7 +58,7 @@ func getFieldValue(fieldName string, v reflect.Value) string {
 	if invalid || s == "" {
 		return ""
 	}
-	return fmt.Sprintf("%s: %v", fieldName, s)
+	return fmt.Sprint(s)
 }
 
 func getType(myvar interface{}) string {
@@ -69,9 +73,9 @@ func printChildStruct(v reflect.Value) string {
 	typeOfS := v.Type()
 	var fields string
 	for i := 0; i < v.NumField(); i++ {
-		f := getFieldValue(typeOfS.Field(i).Name, v.Field(i))
+		f := getFieldValue(typeOfS.Field(i).Name, v.Field(i), false)
 		if f != "" {
-			fields += f + ", "
+			fields += fmt.Sprintf("%s: %v, ", typeOfS.Field(i).Name, f)
 		}
 	}
 	if fields == "" {
