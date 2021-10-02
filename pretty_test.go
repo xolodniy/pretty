@@ -17,9 +17,6 @@ func TestPrimitiveTypes(t *testing.T) {
 	var vFalse bool = false
 	require.Equal(t, "bool{false}", Print(vFalse))
 
-	var vNil interface{} = nil
-	require.Equal(t, "nil", Print(vNil))
-
 	var vString string = "string"
 	require.Equal(t, "string{string}", Print(vString))
 
@@ -37,6 +34,32 @@ func TestPrimitiveTypes(t *testing.T) {
 
 	var vUint uint = 3
 	require.Equal(t, "uint{3}", Print(vUint))
+}
+
+func TestEmptyMap(t *testing.T) {
+	var m = map[string]interface{}{}
+	require.Equal(t, "map{map[]}", Print(m))
+}
+
+func TestMap(t *testing.T) {
+	var m = map[string]interface{}{
+		"int":    1,
+		"string": "myString",
+	}
+	require.Equal(t, "map{map[int:1 string:myString]}", Print(m))
+}
+
+func TestInterface(t *testing.T) {
+	var i interface{}
+
+	i = 1
+	require.Equal(t, "int{1}", Print(i))
+
+	i = "hello world"
+	require.Equal(t, "string{hello world}", Print(i))
+
+	i = nil
+	require.Equal(t, "nil", Print(i))
 }
 
 func TestStructWithPublicFields(t *testing.T) {
@@ -80,4 +103,17 @@ func TestStructWithSubStructs(t *testing.T) {
 		},
 	}
 	require.Equal(t, "c{b: pretty.b{a: pretty.a{myIntFilled: 1}}}", Print(ms))
+}
+
+func TestPointerStruct(t *testing.T) {
+	type MyStruct struct {
+		myIntFilled int
+		myIntEmpty  int
+	}
+	var (
+		ms   = MyStruct{myIntFilled: 1}
+		pms  = &ms
+		ppms = &pms
+	)
+	require.Equal(t, "**MyStruct{myIntFilled: 1}", Print(ppms))
 }
