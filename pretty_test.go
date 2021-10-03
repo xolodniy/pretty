@@ -70,7 +70,7 @@ func TestStructWithPublicFields(t *testing.T) {
 		D string
 	}
 	var ms = MyStruct{A: 1, B: "hello", C: 0, D: ""}
-	require.Equal(t, "MyStruct{A: 1, B: hello}", Print(ms))
+	require.Equal(t, "MyStruct{A: 1, B: 'hello'}", Print(ms))
 }
 
 func TestStructWithPrivateFields(t *testing.T) {
@@ -81,7 +81,7 @@ func TestStructWithPrivateFields(t *testing.T) {
 		d string
 	}
 	var ms = MyStruct{a: 1, b: "hello", c: 0, d: ""}
-	require.Equal(t, "MyStruct{a: 1, b: hello}", Print(ms))
+	require.Equal(t, "MyStruct{a: 1, b: 'hello'}", Print(ms))
 }
 
 func TestStructWithSubStructs(t *testing.T) {
@@ -116,4 +116,80 @@ func TestPointerStruct(t *testing.T) {
 		ppms = &pms
 	)
 	require.Equal(t, "**MyStruct{myIntFilled: 1}", Print(ppms))
+}
+
+func TestPointerEmptyString(t *testing.T) {
+	var s = ""
+	require.Equal(t, "*string{}", Print(&s))
+}
+
+func TestEmptyStructFieldsOmitted(t *testing.T) {
+	type MyStruct struct {
+		a string
+		b *string
+		c int
+		d *int
+		e bool
+		f *bool
+		g int64
+		h *int64
+		i uint
+		j *uint
+		k float64
+		l *float64
+	}
+	require.Equal(t, "MyStruct{}", Print(MyStruct{}))
+}
+
+func TestFilledStructFieldsPrinted(t *testing.T) {
+	type MyStruct struct {
+		a string
+		b *string
+		c int
+		d *int
+		e bool
+		f *bool
+		g int64
+		h *int64
+		i uint
+		j *uint
+		k float64
+		l *float64
+	}
+	var (
+		b         = ""
+		d         = 0
+		f         = false
+		h int64   = 0
+		j uint    = 0
+		l float64 = 0
+	)
+	var ms = MyStruct{
+		a: "a",
+		b: &b,
+		c: 1,
+		d: &d,
+		e: true,
+		f: &f,
+		g: 1,
+		h: &h,
+		i: 1,
+		j: &j,
+		k: 0.1,
+		l: &l,
+	}
+	require.Equal(t, "MyStruct{"+
+		"a: 'a', "+
+		"b: '', "+
+		"c: 1, "+
+		"d: 0, "+
+		"e: true, "+
+		"f: false, "+
+		"g: 1, "+
+		"h: 0, "+
+		"i: 1, "+
+		"j: 0, "+
+		"k: 0.1, "+
+		"l: 0"+
+		"}", Print(ms))
 }
