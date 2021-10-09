@@ -1,4 +1,4 @@
-module pretty
+module github.com/xolodniy/pretty
 
 go 1.16
 
