@@ -16,7 +16,10 @@ func Print(input interface{}) (output string) {
 
 	switch v.Kind() {
 	case reflect.Ptr:
-		return "*" + Print(v.Elem().Interface())
+		if v.Elem().IsValid() {
+			return "*" + Print(v.Elem().Interface())
+		}
+		return v.Type().String() + "{nil}"
 	case reflect.Struct:
 		typeOfS := v.Type()
 		var fields string
@@ -29,6 +32,12 @@ func Print(input interface{}) (output string) {
 		fields = strings.TrimSuffix(fields, ", ")
 		output := fmt.Sprintf("%s{%s}", getType(input), fields)
 		return output
+	case reflect.Slice:
+		elements := make([]string, v.Len())
+		for i := 0; i < v.Len(); i++ {
+			elements[i] = Print(v.Index(i).Interface())
+		}
+		return fmt.Sprintf("%s: [%s]", reflect.TypeOf(input), strings.Join(elements, ", "))
 	case reflect.Invalid:
 		return "nil"
 	default:

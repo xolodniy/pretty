@@ -193,3 +193,26 @@ func TestFilledStructFieldsPrinted(t *testing.T) {
 		"l: 0"+
 		"}", Print(ms))
 }
+
+func TestSliceOfStrings(t *testing.T) {
+	var sArr = []string{"1", "2"}
+	require.Equal(t, "[]string: [string{1}, string{2}]", Print(sArr))
+}
+
+func TestSliceOfInterfaces(t *testing.T) {
+	var q, e = 0, 0
+	var ww *int = nil
+	var arr = []interface{}{q, nil, &e, ww}
+	require.Equal(t, "[]interface {}: [int{0}, nil, *int{0}, *int{nil}]", Print(arr))
+}
+
+func TestSliceOfStructs(t *testing.T) {
+	type Temp struct {
+		a int
+		b *string
+		c bool
+	}
+	var s = "hello"
+	var arr = []Temp{{a: 1, b: &s}, {a: -1, c: true}}
+	require.Equal(t, "[]pretty.Temp: [Temp{a: 1, b: 'hello'}, Temp{a: -1, c: true}]", Print(arr))
+}
