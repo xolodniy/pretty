@@ -3,6 +3,7 @@ package pretty
 import (
 	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
 func TestEmptyStruct(t *testing.T) {
@@ -215,4 +216,27 @@ func TestSliceOfStructs(t *testing.T) {
 	var s = "hello"
 	var arr = []Temp{{a: 1, b: &s}, {a: -1, c: true}}
 	require.Equal(t, "[]pretty.Temp: [Temp{a: 1, b: 'hello'}, Temp{a: -1, c: true}]", Print(arr))
+}
+
+func TestTimeStamp(t *testing.T) {
+	asia, err := time.LoadLocation("Asia/Kolkata")
+	require.Nil(t, err)
+	var date = time.Date(2010, 7, 20, 10, 13, 14, 100000, asia)
+
+	require.Equal(t, "2010-07-20 10:13:14.0001 +0530 IST", Print(date))
+	require.Equal(t, "*2010-07-20 10:13:14.0001 +0530 IST", Print(&date))
+
+	var st = struct {
+		date  time.Time
+		date2 *time.Time
+		date3 *time.Time
+	}{
+		date:  date,
+		date2: &date,
+	}
+	require.Equal(t, "{"+
+		"date: 2010-07-20 10:13:14.0001 +0530, "+
+		"date2: 2010-07-20 10:13:14.0001 +0530"+
+		"}",
+		Print(st))
 }

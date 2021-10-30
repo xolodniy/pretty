@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 )
 
 func Print(input interface{}) (output string) {
@@ -21,6 +22,9 @@ func Print(input interface{}) (output string) {
 		}
 		return v.Type().String() + "{nil}"
 	case reflect.Struct:
+		if getType(input) == "Time" {
+			return fmt.Sprint(input)
+		}
 		typeOfS := v.Type()
 		var fields string
 		for i := 0; i < v.NumField(); i++ {
@@ -88,6 +92,10 @@ func getType(myvar interface{}) string {
 
 func printChildStruct(v reflect.Value) string {
 	typeOfS := v.Type()
+	if typeOfS.String() == "time.Time" {
+		// here we re-create a date field which might be private and unaddressable
+		return makeTime(v).String()
+	}
 	var fields string
 	for i := 0; i < v.NumField(); i++ {
 		f := getFieldValue(typeOfS.Field(i).Name, v.Field(i), false)
@@ -100,4 +108,21 @@ func printChildStruct(v reflect.Value) string {
 	}
 	fields = strings.TrimSuffix(fields, ", ")
 	return fmt.Sprintf("%s{%s}", v.Type(), fields)
+}
+
+// HACK: special function for translate time. used for avoid unexported dates in structs
+func makeTime(v reflect.Value) Time {
+	timeShift := v.Field(2).Elem().Field(6).Elem().Field(1).Int()
+	timezone := time.FixedZone(" ", int(timeShift))
+	// I don't know what this a number, but it allows make correct unix timestamp
+	unix := v.Field(1).Int() - 62135596800
+	date := time.Unix(unix, int64(v.Field(0).Uint()))
+	return Time(date.In(timezone))
+}
+
+type Time time.Time
+
+func (t Time) String() string {
+	s := time.Time(t).String()
+	return strings.TrimSpace(s)
 }
