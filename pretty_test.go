@@ -2,6 +2,7 @@ package pretty
 
 import (
 	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
 	"testing"
 	"time"
 )
@@ -239,4 +240,38 @@ func TestTimeStamp(t *testing.T) {
 		"date2: 2010-07-20 10:13:14.0001 +0530"+
 		"}",
 		Print(st))
+}
+
+func TestStructWithSqlNullTime(t *testing.T) {
+	type testStruct struct {
+		gorm.Model
+		t     time.Time
+		tNil  time.Time
+		pT    *time.Time
+		pNilT *time.Time
+	}
+	date := time.Date(2020, 1, 1, 1, 1, 1, 1, time.UTC)
+
+	require.Equal(t, "testStruct{"+
+		"Model: gorm.Model{"+
+		"CreatedAt: 2020-01-01T01:01:01Z, "+
+		"UpdatedAt: 2020-01-01T01:01:01Z, "+
+		"DeletedAt: gorm.DeletedAt{"+
+		"Time: 2020-01-01T01:01:01Z"+
+		"}}, "+
+		"t: unexported date, "+
+		"pT: unexported date"+
+		"}", Print(testStruct{
+		Model: gorm.Model{
+			ID:        0,
+			CreatedAt: date,
+			UpdatedAt: date,
+			DeletedAt: gorm.DeletedAt{
+				Time:  date,
+				Valid: false,
+			},
+		},
+		t:  date,
+		pT: &date,
+	}))
 }
