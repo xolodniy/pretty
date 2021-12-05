@@ -236,8 +236,8 @@ func TestTimeStamp(t *testing.T) {
 		date2: &date,
 	}
 	require.Equal(t, "{"+
-		"date: 2010-07-20 10:13:14.0001 +0530, "+
-		"date2: 2010-07-20 10:13:14.0001 +0530"+
+		"date: unexported date, "+
+		"date2: unexported date"+
 		"}",
 		Print(st))
 }
@@ -274,4 +274,11 @@ func TestStructWithSqlNullTime(t *testing.T) {
 		t:  date,
 		pT: &date,
 	}))
+}
+
+func TestGormModelWithEmptyFields(t *testing.T) {
+	type testStruct struct {
+		gorm.Model
+	}
+	require.Equal(t, `testStruct{}`, Print(testStruct{}))
 }

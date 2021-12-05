@@ -93,11 +93,11 @@ func getType(myvar interface{}) string {
 func printChildStruct(v reflect.Value) string {
 	typeOfS := v.Type()
 	if typeOfS.String() == "time.Time" {
-		if v.CanInterface() {
-			return v.Interface().(time.Time).Format(time.RFC3339)
-		}
 		if v.IsZero() {
 			return ""
+		}
+		if v.CanInterface() {
+			return v.Interface().(time.Time).Format(time.RFC3339)
 		}
 		// TODO: research how to print unexported date
 		return "unexported date"
